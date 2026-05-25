@@ -3,10 +3,12 @@ from bpy.props import IntProperty, EnumProperty
 
 from ..utils import ops_utils
 
+
 class ArnoldMaterialOperator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return ops_utils.poll_object(context)
+
 
 class ARNOLD_OT_material_new(ArnoldMaterialOperator):
     bl_idname = 'arnold.material_new'
@@ -18,7 +20,7 @@ class ARNOLD_OT_material_new(ArnoldMaterialOperator):
         mat = bpy.data.materials.new(name="Material")
         tree_name = ops_utils.make_nodetree_name(mat.name)
         node_tree = bpy.data.node_groups.new(name=tree_name, type='ArnoldShaderTree')
-        
+
         ops_utils.init_material_nodetree(node_tree)
         mat.arnold.node_tree = node_tree
         mat.use_nodes = True
@@ -28,31 +30,33 @@ class ARNOLD_OT_material_new(ArnoldMaterialOperator):
             ob.material_slots[ob.active_material_index].material = mat
         else:
             ob.data.materials.append(mat)
-        
+
         # For viewport render, we have to update the object
         # because the newly created material is not yet assigned there
         ob.update_tag()
 
         return {'FINISHED'}
-    
+
+
 class ARNOLD_OT_material_unlink(ArnoldMaterialOperator):
     bl_idname = "arnold.material_unlink"
     bl_label = ""
     bl_description = "Unlink data-block"
     bl_options = {'UNDO'}
-    
+
     def execute(self, context):
         ob = context.object
         if ob.material_slots:
             ob.material_slots[ob.active_material_index].material = None
         return {'FINISHED'}
 
+
 class ARNOLD_OT_material_copy(ArnoldMaterialOperator):
     bl_idname = "arnold.material_copy"
     bl_label = "Copy"
     bl_description = "Create a copy of the material and node tree"
     bl_options = {'UNDO'}
-    
+
     def execute(self, context):
         current_mat = context.object.active_material
         new_mat = current_mat.copy()
@@ -69,6 +73,7 @@ class ARNOLD_OT_material_copy(ArnoldMaterialOperator):
 
         return {'FINISHED'}
 
+
 class ARNOLD_OT_material_set(ArnoldMaterialOperator):
     bl_idname = "arnold.material_set"
     bl_label = ""
@@ -82,6 +87,7 @@ class ARNOLD_OT_material_set(ArnoldMaterialOperator):
         context.object.active_material = mat
 
         return {'FINISHED'}
+
 
 class ARNOLD_OT_material_select(ArnoldMaterialOperator):
     ''' Material selection dropdown with search '''
@@ -104,7 +110,7 @@ class ARNOLD_OT_material_select(ArnoldMaterialOperator):
         ARNOLD_OT_material_select.callback_strings = items
 
         return items
-    
+
     material: EnumProperty(
         name="Materials",
         items=callback
@@ -120,6 +126,7 @@ class ARNOLD_OT_material_select(ArnoldMaterialOperator):
         context.window_manager.invoke_search_popup(self)
         return {'FINISHED'}
 
+
 classes = (
     ARNOLD_OT_material_new,
     ARNOLD_OT_material_unlink,
@@ -128,9 +135,11 @@ classes = (
     ARNOLD_OT_material_select
 )
 
+
 def register():
     from ..utils import register_utils as utils
     utils.register_classes(classes)
+
 
 def unregister():
     from ..utils import register_utils as utils

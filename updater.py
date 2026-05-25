@@ -3,18 +3,20 @@ import ssl
 import re
 import json
 
+
 class Version:
     def __init__(self, *args):
         self.value = args
 
     def __to_raw_string(self):
         return ''.join(str(i) for i in self.value)
-    
+
     def to_int(self):
-        return int(f'{self.__to_raw_string()}')
+        return int(self.__to_raw_string())
 
     def to_string(self):
         return '.'.join(str(i) for i in self.value)
+
 
 class ArnoldUpdater():
     def __init__(self, version=None):
@@ -33,18 +35,18 @@ class ArnoldUpdater():
 
                     versions = data.get("files", [])
 
-                    for version in versions:
-                        result = version.split(".")
+                    for ver_str in versions:
+                        result = ver_str.split(".")
                         result = Version(*result)
 
                         if not self.latest_version or result.to_int() > self.latest_version.to_int():
                             self.latest_version = result
-                        
+
                         self.all_versions.append(result)
                 else:
                     print(f"Failed to fetch ZIPs. Status: {response.status}")
         except Exception as e:
             print(f"Error fetching ZIPs: {e}")
-    
+
     def update_available(self):
         return self.current_version.to_int() < self.latest_version.to_int()
